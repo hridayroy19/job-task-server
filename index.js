@@ -33,33 +33,7 @@ async function run() {
     await client.connect();
 
          const createTaskCollaction =client.db("jobTask").collection("crateTask")
-          
-
-
-        //  app.get("/crateTask" , async (req , res)=>{
-        //     const mytask = createTaskCollaction.find();
-        //     const result = await mytask.toArray()
-        //     res.send(result)
-        //  })
-
-
-        // app.get("/crateTask", async (req,res)=>{
-        //     try{
-        //         console.log(req.query.email);
-        //         let query = {};
-        //         if ( req.query?.email){
-        //             query = { email: req.query.email};
-        //         }
-        //         const result = await createTaskCollaction.find(query).toArray();
-        //         console.log(result)
-        //         res.send(result);
-            
-        //     }
-        //     catch (error) {
-        //         console.error(error)
-        //         res.status(500).send("internal error")
-        //     }
-        // })
+      
 
         app.get('/crateTask', async (req, res) => {
             try {
@@ -96,25 +70,61 @@ async function run() {
           });
 
 
+          app.get('/crateTask/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id)};
+            const result = await createTaskCollaction.findOne(query);
+            res.send(result);
+          })
+
+          // app.post("/crateTask",async (req, res) => {
+          //   const user = req.body;
+          //   console.log(user);
+          //   const result = await createTaskCollaction.insertOne(user);
+          //   res.send(result);
+          // });
+
+          app.put("/crateTask/:id", async (req, res) => {
+            const id = req.params.id;
+            const user = req.body;
+            console.log(id, user);
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updateUser = {
+              $set: {
+                // name: user.name,
+                // email: user.email,
+                title:user.title,
+                descriptions:user.descriptions,
+                deadlines:user.deadlines,   
+                priority:user.priority
+       
+              },
+            };
+      
+            const result = await createTaskCollaction.updateOne(
+              filter,
+              updateUser,
+              options
+            );
+            res.send(result);
+          });
+
+
+
+
 
 
 
     // Send a ping to confirm a successful connection
-    // await client.db("admin").command({ ping: 1 });
-    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
   }
 }
 run().catch(console.dir);
-
-
-
-
-
-
-
 
 app.get('/' , (req , res)=>{
     res.send("task is running")
